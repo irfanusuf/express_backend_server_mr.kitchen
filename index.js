@@ -1,14 +1,16 @@
 const express = require ("express")
 const {registerController , loginController} =  require("./controllers/userController")
 const mongoose = require ("mongoose")
+const cors = require('cors')
 const bodyparser = require ("body-parser")
 const app = express()
 
 
 app.use(bodyparser.json())
+app.use(cors())
 
 
-const Port = 6000
+const Port = 4000
 const url = "mongodb://localhost:27017/mr_kitchen"
 
 
@@ -31,10 +33,17 @@ else {
 
 
 
-app.get('/' , (req , res )=>{ res.send("hello world ")})
+app.get('/' , (req , res )=>{   
+    
+    
+    
+    
+    res.json({message : "hello world "})}
+    
+    )
 
-app.post('/register' , registerController )
-app.post('/login' , loginController )
+app.post('/user/register' , registerController )
+app.post('/user/login' , loginController )
 
 
 
