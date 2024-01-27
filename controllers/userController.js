@@ -39,30 +39,32 @@ const loginController =async (req , res) =>{
 
   try{
     const {email , password} = req.body 
-    const isUser = await User.findOne({email})
+    const isUser = await User.findOne({email})      // linear search method in mongooose
   
   
     if(email && password !==  ""){
       if(isUser){
   
         const passverify = await bcrypt.compare(password , isUser.password )
+
+
         const token = await jwt.sign( {appUser : isUser.username , appuserEmail : isUser.email} , 'thisisasecretkey')
         
         if(passverify){
-          res.status(201).json({message : "logged in succesfully " , token })
+          res.status(201).json({message : "Logged in succesfully!" , token })
         }
         else {
-          res.json({message : "password incorrect"})
+          res.json({message : "Password incorrect!"})
         }
       }
       else{
-        res.json({message : "User doesnot exists"})
+        res.json({message : "User doesnot exists!"})
       }
   
   
     }
     else{
-      res.json({message  : " all credentials Required "})
+      res.json({message  : "All credentials Required!"})
     }
   
 

@@ -1,5 +1,6 @@
 const express = require ("express")
 const {registerController , loginController} =  require("./controllers/userController")
+const authHandler = require ('./middleware/auth')
 const mongoose = require ("mongoose")
 const cors = require('cors')
 const bodyparser = require ("body-parser")
@@ -44,6 +45,7 @@ app.get('/' , (req , res )=>{
 
 app.post('/user/register' , registerController )
 app.post('/user/login' , loginController )
+app.get ('/user/homepage' , authHandler)
 
 
 
