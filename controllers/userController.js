@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
+
 const registerController = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -31,10 +32,7 @@ const registerController = async (req, res) => {
 };
 
 
-const loginController =async (req , res) =>{
-
-
-
+const loginController = async (req , res) =>{
 
 
   try{
@@ -45,10 +43,10 @@ const loginController =async (req , res) =>{
     if(email && password !==  ""){
       if(isUser){
   
-        const passverify = await bcrypt.compare(password , isUser.password )
+        const passverify = bcrypt.compare(password , isUser.password )
+        const  secretkey = process.env.SECRET_KEY
 
-
-        const token = await jwt.sign( {appUser : isUser.username , appuserEmail : isUser.email} , 'thisisasecretkey')
+        const token = jwt.sign( {appUser : isUser.username , appuserEmail : isUser.email} , secretkey)
         
         if(passverify){
           res.status(201).json({message : "Logged in succesfully!" , token })
@@ -72,9 +70,6 @@ const loginController =async (req , res) =>{
   catch(error){
     console.log(error)
   }
- 
-
-
 
 }
 
