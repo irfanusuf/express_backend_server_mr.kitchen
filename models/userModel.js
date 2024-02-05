@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const User = mongoose.model('User' , {
 
 username : String , 
+profilePicUrl : String,
 email : String ,
 password : String
 
