@@ -1,14 +1,6 @@
 const Order = require("../models/orderModel");
-const nodemailer = require("nodemailer");
+const transporter =require("../utils/nodemailer")
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  secure: false, // if true it needs tls certificate
-  auth: {
-    user: `irfanusuf33@gmail.com`,
-    pass: "dban ydhi vrww ixni",
-  },
-});
 
 const orderHandler = async (req, res) => {
   try {

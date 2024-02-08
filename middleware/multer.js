@@ -12,8 +12,6 @@ const upload = multer({  dest: 'uploads/'  ,  limits: {
 
 
 // const multerMid = async (req , res ) =>{
-
-
 //    const image = req.body.image  
 //   upload.single(image)
 
@@ -21,8 +19,7 @@ const upload = multer({  dest: 'uploads/'  ,  limits: {
 // }
 
 
-const multerMid = upload.single('image')
-const multVid = upload.single('video')
+const multerMid = upload.single("image")
 
 
 module.exports = multerMid
