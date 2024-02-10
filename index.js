@@ -5,7 +5,8 @@ const {
   logoutController,
   deleteUserController,
   forgotPassController,
-  updatePassWordController
+  updatePassWordController,
+  changePassWordController
 } = require("./controllers/userController");
 
 const multerMid = require("./middleware/multer");
@@ -47,16 +48,14 @@ if (mongoose.connect(url)) {
 app.post("/user/register", multerMid, registerController);
 app.post("/user/login", loginController);
 app.post('/user/forgotpassword' , forgotPassController )
-
+app.post('/user/updatePassword'  , updatePassWordController )
 
 
 
 // secured user routes 
 app.post('/user/logout' ,isAuthenticated, logoutController)
 app.post('/user/delete/me' , isAuthenticated , deleteUserController)
-app.post('/user/updatePassword' ,isAuthenticated , updatePassWordController )
-
-
+app.post('/user/changePassword' , isAuthenticated , changePassWordController )
 
 
 

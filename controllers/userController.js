@@ -1,26 +1,21 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const transporter =require("../utils/nodemailer")
-const cloudinary = require("../utils/cloudinary")
-
-
-
+const transporter = require("../utils/nodemailer");
+const cloudinary = require("../utils/cloudinary");
 
 const registerController = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    const imagePath = req.file.path;        // image path is parsed multer 
+    const imagePath = req.file.path; // image path is parsed multer
 
     const existingUser = await User.findOne({ email });
-    
+
     const encryptePass = await bcrypt.hash(password, 10);
 
     if (username && email && password !== "") {
       if (!existingUser) {
-
-
         const upload = await cloudinary.uploader.upload(imagePath, {
           folder: "mr.kitchen",
         });
@@ -52,6 +47,7 @@ const registerController = async (req, res) => {
   }
 };
 
+// home work add 2fa authentication 
 const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -59,14 +55,14 @@ const loginController = async (req, res) => {
 
     if (email && password !== "") {
       if (isUser) {
-        const passverify = bcrypt.compare(password, isUser.password);
-        const secretkey = process.env.SECRET_KEY;
-
+        const passverify = await bcrypt.compare(password, isUser.password);
+    
         if (passverify) {
           const token = jwt.sign(
-            { appUser: isUser.username, appuserEmail: isUser.email , userId : isUser._id},
-            {expires : "1h"},
-            secretkey
+            {
+              userId: isUser._id,
+            },
+            "secretkey"
           );
 
           res.cookie("token", token, { httpOnly: true });
@@ -105,8 +101,7 @@ const logoutController = async (req, res) => {
 
 const deleteUserController = async (req, res) => {
   try {
-    const {userId} =req.info
-   
+    const { userId } = req.info;
 
     const isUser = await User.findByIdAndDelete(userId);
 
@@ -121,58 +116,60 @@ const deleteUserController = async (req, res) => {
 };
 
 const forgotPassController = async (req, res) => {
-try{
+  try {
+    const { email } = req.body;
+    const userExists = await User.findOne({ email });
 
-const {email} = req.body
-const userExists = await User.findOne({email})
+    // console.log(userExists)
+    const userId = userExists._id;
 
-if(!userExists){
-  return res.json({message : "user Doesnot Exists"})
-}else{
+    if (!userExists) {
+      return res.json({ message: "user Doesnot Exists" });
+    } else {
+      const sendMail = await transporter.sendMail({
+        from: "irfanusuf33@gmail.com",
+        to: `${email}`,
+        subject: "Change Password",
+        text: "link ", //pending
+      });
 
-  const sendMail = await transporter.sendMail({
-   from : "irfanusuf33@gmail.com",
-   to : `${email}`,
-   subject : "Change Password",
-   text : "link "    //pending 
-  })
-
-if(sendMail){
-   res.json({message : "Password Reset link has been sent to your Registered Email"})
-}
-else{
-res.json({message : "Some Eror"})
-}
-}
-
-
-}catch(err){
-
-
-}
-
+      if (sendMail) {
+        res.json({
+          message: "Password Reset link has been sent to your Registered Email",
+          userId,
+        });
+      } else {
+        res.json({ message: "Some Eror" });
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
 };
 
-const updatePassWordController  = async (req, res) => {
+const updatePassWordController = async (req, res) => {
   try {
+    const { newPassword, ConfirmNewPassWord } = req.body;
+    const { userId } = req.query;
 
+    if (newPassword !== "" && ConfirmNewPassWord !== "") {
+      if (newPassword === ConfirmNewPassWord) {
+        const hashPassword = await bcrypt.hash(newPassword, 10);
 
-    const _id = req.query._id
-    const {newPassword , ConfirmNewPassWord} = req.body
+        const user = await User.findByIdAndUpdate(userId, {
+          password: hashPassword,
+        });
 
-    const isUser = await User.findById(_id)
-
-    if(password === ConfirmPassWord){
-
-
-//home work 
-
-      // const UpdatePass = isUser.          // home work 
-
+        const updateUser = await user.save();
+        if (updateUser) {
+          res.json({ message: " PassWord Updated SucessFully!"});
+        }
+      } else {
+        res.json({ message: "PassWord Doesnot Match !" });
+      }
+    } else {
+      res.json({ message: "Both of the feilds Required !" });
     }
-
-    // console.log(isUser)
-   
 
 
   } catch (err) {
@@ -180,11 +177,44 @@ const updatePassWordController  = async (req, res) => {
   }
 };
 
+
+const changePassWordController = async (req, res) => {
+  try {
+    const { newPassword, ConfirmNewPassWord } = req.body;
+    const  userId  = req.info._id;
+
+    if (newPassword !== "" && ConfirmNewPassWord !== "") {
+      if (newPassword === ConfirmNewPassWord) {
+        const hashPassword = await bcrypt.hash(newPassword, 10);
+
+        const user = await User.findByIdAndUpdate(userId, {
+          password: hashPassword,
+        });
+
+        const updateUser = await user.save();
+        if (updateUser) {
+          res.json({ message: " PassWord Updated SucessFully!"});
+        }
+      } else {
+        res.json({ message: "PassWord Doesnot Match !" });
+      }
+    } else {
+      res.json({ message: "Both of the feilds Required !" });
+    }
+
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
 module.exports = {
   registerController,
   loginController,
   logoutController,
   deleteUserController,
   forgotPassController,
-  updatePassWordController
+  updatePassWordController,
+  changePassWordController
 };
