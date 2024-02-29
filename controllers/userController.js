@@ -4,11 +4,12 @@ const jwt = require("jsonwebtoken");
 const transporter = require("../utils/nodemailer");
 const cloudinary = require("../utils/cloudinary");
 
+// integrated with front end
 const registerController = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, image } = req.body;
 
-    const imagePath = req.file.path; // image path is parsed multer
+    // const imagePath = req.file.path; // image path is parsed multer   // this method is for postman testing
 
     const existingUser = await User.findOne({ email });
 
@@ -16,7 +17,7 @@ const registerController = async (req, res) => {
 
     if (username && email && password !== "") {
       if (!existingUser) {
-        const upload = await cloudinary.uploader.upload(imagePath, {
+        const upload = await cloudinary.uploader.upload(image, {
           folder: "mr.kitchen",
         });
 
@@ -47,7 +48,8 @@ const registerController = async (req, res) => {
   }
 };
 
-// home work add 2fa authentication 
+// home work add 2fa authentication
+// integrated with front end
 const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -56,7 +58,7 @@ const loginController = async (req, res) => {
     if (email && password !== "") {
       if (isUser) {
         const passverify = await bcrypt.compare(password, isUser.password);
-    
+
         if (passverify) {
           const token = jwt.sign(
             {
@@ -82,6 +84,8 @@ const loginController = async (req, res) => {
   }
 };
 
+// have to revamppp
+
 const logoutController = async (req, res) => {
   try {
     const email = req.body.email;
@@ -99,27 +103,74 @@ const logoutController = async (req, res) => {
   }
 };
 
+// integration will be done 29 feb 2024
 const deleteUserController = async (req, res) => {
   try {
-    const { userId } = req.info;
+    const { email, password } = req.body;
 
-    const isUser = await User.findByIdAndDelete(userId);
+    const isUser = await User.findOne({ email });
 
-    if (isUser) {
-      res.json({ message: "User Deleted Succesfully" });
+    if (email !== "" && password !== "") {
+      if (isUser) {
+        const userId = isUser._id;
+        const passverify = await bcrypt.compare(password, isUser.password);
+
+        if (passverify) {
+          const delUser = await User.findByIdAndDelete(userId);
+
+          if (delUser) {
+            res.json({ message: "User Deleted Succesfully" });
+          }
+        }
+        else{
+
+          res.json({message : "PassWord Doesnot Match"})
+        }
+      } else {
+        res.json({ message: "User Not Found +  Already deleted " });
+      }
     } else {
-      res.json({ message: "User Not Found +  Already deleted " });
+      res.json({ message: " All Credentials Required !" });
     }
   } catch (err) {
     console.log(err);
   }
 };
 
+// already integrated
+// revamp needed
 const forgotPassController = async (req, res) => {
   try {
     const { email } = req.body;
-    const userExists = await User.findOne({ email });
 
+    if (email !== "") {
+      const userExists = await User.findOne({ email });
+
+      const userId = userExists._id;
+      if (!userExists) {
+        return res.json({ message: "user Doesnot Exists" });
+      } else {
+        const sendMail = await transporter.sendMail({
+          from: "irfanusuf33@gmail.com",
+          to: `${email}`,
+          subject: "Change Password",
+          text: `http://localhost:3000/change-password?userId= ${userId}`, //pending
+        });
+
+        if (sendMail) {
+          const userId = userExists._id;
+          res.status(201).json({
+            message:
+              "Password Reset link has been sent to your Registered Email",
+            userId,
+          });
+        } else {
+          res.json({ message: "Some Eror" });
+        }
+      }
+    } else {
+      res.json({ message: "Email Required" });
+    }
     // console.log(userExists)
     const userId = userExists._id;
 
@@ -134,7 +185,7 @@ const forgotPassController = async (req, res) => {
       });
 
       if (sendMail) {
-        res.json({
+        res.status(201).json({
           message: "Password Reset link has been sent to your Registered Email",
           userId,
         });
@@ -147,22 +198,25 @@ const forgotPassController = async (req, res) => {
   }
 };
 
+// already integrated
+// reavamp needed as per the inayat's suggestion
 const updatePassWordController = async (req, res) => {
   try {
-    const { newPassword, ConfirmNewPassWord } = req.body;
+    const { newPassword, confirmNewPassWord } = req.body;
     const { userId } = req.query;
 
-    if (newPassword !== "" && ConfirmNewPassWord !== "") {
-      if (newPassword === ConfirmNewPassWord) {
+    if (newPassword !== "" && confirmNewPassWord !== "") {
+      if (newPassword === confirmNewPassWord) {
         const hashPassword = await bcrypt.hash(newPassword, 10);
 
         const user = await User.findByIdAndUpdate(userId, {
           password: hashPassword,
         });
 
+        console.log(user);
         const updateUser = await user.save();
         if (updateUser) {
-          res.json({ message: " PassWord Updated SucessFully!"});
+          res.status(201).json({ message: "PassWord Updated SucessFully!" });
         }
       } else {
         res.json({ message: "PassWord Doesnot Match !" });
@@ -170,18 +224,16 @@ const updatePassWordController = async (req, res) => {
     } else {
       res.json({ message: "Both of the feilds Required !" });
     }
-
-
   } catch (err) {
     console.log(err);
   }
 };
 
-
+// integration will be done on 1 march
 const changePassWordController = async (req, res) => {
   try {
     const { newPassword, ConfirmNewPassWord } = req.body;
-    const  userId  = req.info._id;
+    const userId = req.info._id;
 
     if (newPassword !== "" && ConfirmNewPassWord !== "") {
       if (newPassword === ConfirmNewPassWord) {
@@ -193,7 +245,7 @@ const changePassWordController = async (req, res) => {
 
         const updateUser = await user.save();
         if (updateUser) {
-          res.json({ message: " PassWord Updated SucessFully!"});
+          res.json({ message: " PassWord Updated SucessFully!" });
         }
       } else {
         res.json({ message: "PassWord Doesnot Match !" });
@@ -201,13 +253,10 @@ const changePassWordController = async (req, res) => {
     } else {
       res.json({ message: "Both of the feilds Required !" });
     }
-
-
   } catch (err) {
     console.log(err);
   }
 };
-
 
 module.exports = {
   registerController,
@@ -216,5 +265,5 @@ module.exports = {
   deleteUserController,
   forgotPassController,
   updatePassWordController,
-  changePassWordController
+  changePassWordController,
 };

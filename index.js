@@ -49,12 +49,13 @@ app.post("/user/register", multerMid, registerController);
 app.post("/user/login", loginController);
 app.post('/user/forgotpassword' , forgotPassController )
 app.post('/user/updatePassword'  , updatePassWordController )
+app.post('/user/delete/me', deleteUserController)
 
 
 
 // secured user routes 
 app.post('/user/logout' ,isAuthenticated, logoutController)
-app.post('/user/delete/me' , isAuthenticated , deleteUserController)
+
 app.post('/user/changePassword' , isAuthenticated , changePassWordController )
 
 
