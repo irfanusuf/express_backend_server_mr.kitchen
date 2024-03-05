@@ -15,10 +15,8 @@ const {
   cancelOrderHandler,
 } = require("./controllers/orderController");
 
-
+const {likeHandler , unlikeHandler} = require('./controllers/postController')
 const {createItemHandler , getAllItems} = require('./controllers/adminController')
-
-
 const isAuthenticated = require("./middleware/auth");
 
 
@@ -55,12 +53,14 @@ app.post('/user/updatePassword'  , updatePassWordController )
 app.post('/user/delete/me', deleteUserController)
 app.post('/user/logout' ,isAuthenticated, logoutController)
 app.post('/user/changePassword' , isAuthenticated , changePassWordController )
-
+app.post('/user/like', isAuthenticated , likeHandler)
+app.post('/user/unlike', isAuthenticated , unlikeHandler)
 
 
 // admin Routes
 
 app.post('/admin/order/item' , multerMid , createItemHandler)
+
 
 
 

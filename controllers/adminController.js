@@ -3,10 +3,10 @@ const cloudinary = require("../utils/cloudinary");
 
 const createItemHandler = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description , price } = req.body;
     const image = req.file.path;
 
-    if (title !== "" && description !== "") {
+    if (title !== "" && description !== "" && price !=="") {
       const upload = await cloudinary.uploader.upload(image, {
         folder: "mr. kitchen Items",
       });
@@ -14,7 +14,7 @@ const createItemHandler = async (req, res) => {
       const imageUrl = upload.secure_url;
 
       if (upload) {
-        const item = new Item({ title, description, imageUrl });
+        const item = new Item({ title, description,price, imageUrl });
         const saveItem = await item.save();
 
         if (saveItem) {
@@ -38,7 +38,7 @@ const getAllItems = async (req, res) => {
     const items = await Item.find();
 
     if (items) {
-      res.json({ message: "All Items are here ", items });
+      res.json({ message: "All Items are here!", items });
     }
   } catch (err) {
     console.log(err);

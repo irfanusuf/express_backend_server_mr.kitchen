@@ -6,10 +6,8 @@ const isAuthenticated = async (req, res, next) => {
     if (!token) {
      return res.status(403).json({ message: "Forbidden!" });
 
-
-
     } else {
-      await jwt.verify(token, "thisisasecretkey", (err, decode) => {
+      await jwt.verify(token, "secretkey", (err, decode) => {
         
         if (err) {
         return  res.json({ message: "UnAuthorized" });
