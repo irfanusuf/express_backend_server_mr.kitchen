@@ -9,36 +9,52 @@ const likeHandler = async (req, res) => {
   try {
     const { userId } = req.info;    // is an object in which decoded info of token is stored
     const { itemId } = req.query;
+
     const isItem = await Item.findById(itemId);
 
     const alreadyLiked = await isItem.likes.findIndex(
       (individualLike) => individualLike.user._id.toString() === userId
     )
 
-    if (userId) {
-      console.log(alreadyLiked)
-     
-      if (alreadyLiked === -1) {
-     
-       await isItem.likes.push({ user: userId });
-       const likePost =  await isItem.save();
+    const alreadyDisliked = await isItem.unlikes.findIndex(
+      (individualDislike)=>individualDislike.user._id.toString()=== userId
+    );
 
-        if (likePost) {
-          res.json({ message: "Post Liked" });
+
+
+    if (alreadyDisliked !== -1){
+      await isItem.unlikes.splice(alreadyDisliked, 1)
+      await isItem.save()
+      if (userId) {
+     
+     
+        if (alreadyLiked === -1) {
+       
+         await isItem.likes.push({ user: userId });
+         const likePost =  await isItem.save();
+  
+         
+  
+          if (likePost) {
+            res.json({ message: "Post Liked" });
+          } else {
+            res.json({ message: "Some Error!" });
+          }
         } else {
-          res.json({ message: "Some Error!" });
+          res.json({ message: "U already Liked The Post!" });
         }
       } else {
-        res.json({ message: "U already Liked The Post!" });
+        res.json({ message: "Loggin first" });
       }
-    } else {
-      res.json({ message: "Loggin first" });
+      
     }
+
+
+    
   } catch (err) {
     console.log(err);
   }
 };
-
 
 
 
@@ -51,6 +67,8 @@ const unlikeHandler = async (req, res) => {
     const alreadyUnLiked = await isItem.unlikes.findIndex(
       (individualLike) => individualLike.user._id.toString() === userId
     )
+
+
     
     if (userId) {
       
