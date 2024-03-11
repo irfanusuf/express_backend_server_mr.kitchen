@@ -59,7 +59,7 @@ app.post('/user/unlike', isAuthenticated , unlikeHandler)
 
 // admin Routes
 
-app.post('/admin/order/item' , multerMid , createItemHandler)
+app.post('/admin/createitem' , multerMid , createItemHandler)
 
 
 

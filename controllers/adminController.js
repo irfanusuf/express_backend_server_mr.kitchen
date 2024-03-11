@@ -3,8 +3,8 @@ const cloudinary = require("../utils/cloudinary");
 
 const createItemHandler = async (req, res) => {
   try {
-    const { title, description , price } = req.body;
-    const image = req.file.path;
+    const { title, description , price , image} = req.body;
+    // const image = req.file.path;
 
     if (title !== "" && description !== "" && price !=="") {
       const upload = await cloudinary.uploader.upload(image, {
@@ -18,7 +18,7 @@ const createItemHandler = async (req, res) => {
         const saveItem = await item.save();
 
         if (saveItem) {
-          res.json({ message: "Item saved " });
+          res.json({ message: "Item saved!" , item });
         } else {
           res.json({ message: "file system error" });
         }
