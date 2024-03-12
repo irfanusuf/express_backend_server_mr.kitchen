@@ -44,4 +44,24 @@ const getAllItems = async (req, res) => {
     console.log(err);
   }
 };
-module.exports = { createItemHandler, getAllItems };
+
+const getItem = async (req, res) => {
+  
+  const {itemId} = req.query
+
+  try {
+    const item = await Item.findById(itemId);
+
+    if (item) {
+      res.json({ message: "Item Found!", item });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+
+
+
+module.exports = { createItemHandler, getAllItems , getItem };

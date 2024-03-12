@@ -16,7 +16,7 @@ const {
 } = require("./controllers/orderController");
 
 const {likeHandler , unlikeHandler} = require('./controllers/postController')
-const {createItemHandler , getAllItems} = require('./controllers/adminController')
+const {createItemHandler , getAllItems , getItem} = require('./controllers/adminController')
 const isAuthenticated = require("./middleware/auth");
 
 
@@ -69,7 +69,8 @@ app.post("/user/order/new", isAuthenticated, orderHandler);
 app.post("/user/order/cancel", isAuthenticated, cancelOrderHandler);
 
 
-app.get("/allItems" , getAllItems)
+app.get("/allItems" ,isAuthenticated, getAllItems)
+app.get("/items" ,isAuthenticated, getItem)
 
 
 // server start
