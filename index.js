@@ -69,8 +69,8 @@ app.post("/user/order/new", isAuthenticated, orderHandler);
 app.post("/user/order/cancel", isAuthenticated, cancelOrderHandler);
 
 
-app.get("/allItems" ,isAuthenticated, getAllItems)
-app.get("/items" ,isAuthenticated, getItem)
+app.get("/allItems" , getAllItems)
+app.get("/items" , getItem)
 
 
 // server start

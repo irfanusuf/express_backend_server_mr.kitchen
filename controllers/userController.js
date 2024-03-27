@@ -88,7 +88,7 @@ const loginController = async (req, res) => {
 
 const logoutController = async (req, res) => {
   try {
-    const email = req.body.email;
+    const {email} = req.body;
 
     const existingUser = await User.findOne({ email });
 
